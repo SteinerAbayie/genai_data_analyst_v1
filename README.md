@@ -1,27 +1,28 @@
 # LangGraph → BigQuery → Streamlit Dashboard Demo 🚀
+
 _A full Gen‑AI analytics stack in < 200 lines of Python_
 
 ---
 
 ## 📊 What it does
 
-| Stage | Action |
-|-------|--------|
-| **1 Prompt** | You type a plain‑English business question |
-| **2 LLM** | GPT‑4o (default) / Gemini / Llama 3 writes governed **BigQuery SQL** |
-| **3 Warehouse** | Query runs, results stream into a **pandas DataFrame** |
-| **4 LLM** | Model autogenerates a polished **Streamlit** dashboard |
+| Stage           | Action                                                                |
+| --------------- | --------------------------------------------------------------------- |
+| **1 Prompt**    | You type a plain‑English business question                            |
+| **2 LLM**       | GPT‑4o (default) / Gemini / Llama 3 writes governed **BigQuery SQL**  |
+| **3 Warehouse** | Query runs, results stream into a **pandas DataFrame**                |
+| **4 LLM**       | Model autogenerates a polished **Streamlit** dashboard                |
 | **5 Artifacts** | `dashboard_app.py`, `result.csv`, `query.sql` are saved (git‑ignored) |
 
 ---
 
 ## ✨ Features
 
-* Governed SQL generation (dataset‑whitelist)  
-* Handles Drive‑backed Sheets (adds Drive scope automatically)  
-* One‑click pro‑grade dashboard (KPI cards, Ag‑Grid, auto‑charts, dark‑mode toggle)  
-* Pluggable LLM (GPT‑4o, Gemini 1.5 Pro, Groq Llama 3)  
-* CI‑friendly artifacts—just hook the "mock Git push" step
+- Governed SQL generation (dataset‑whitelist)
+- Handles Drive‑backed Sheets (adds Drive scope automatically)
+- One‑click pro‑grade dashboard (KPI cards, Ag‑Grid, auto‑charts, dark‑mode toggle)
+- Pluggable LLM (GPT‑4o, Gemini 1.5 Pro, Groq Llama 3)
+- CI‑friendly artifacts—just hook the "mock Git push" step
 
 ---
 
@@ -53,12 +54,12 @@ pip install -r requirements.txt
 
 ### 2 · Create Google Cloud credentials (one‑time)
 
-| Step | Console navigation | Notes |
-| ---- | ------------------ | ----- |
-| **a Create a service account** | **IAM & Admin → Service Accounts → Create** | Name it `genai-dashboard-svc` |
-| **b Grant roles** | Same wizard → **Roles** | *BigQuery Job User* + *BigQuery Data Viewer* (or dataset‑level ACL) |
-| **c Download a JSON key** | **Keys → Add key → JSON** | Saves `your‑svc‑acct‑key.json` |
-| **d Enable APIs** | **APIs & Services → Library** | Turn on **BigQuery API** **and** **Google Drive API** |
+| Step                           | Console navigation                          | Notes                                                               |
+| ------------------------------ | ------------------------------------------- | ------------------------------------------------------------------- |
+| **a Create a service account** | **IAM & Admin → Service Accounts → Create** | Name it `genai-dashboard-svc`                                       |
+| **b Grant roles**              | Same wizard → **Roles**                     | _BigQuery Job User_ + _BigQuery Data Viewer_ (or dataset‑level ACL) |
+| **c Download a JSON key**      | **Keys → Add key → JSON**                   | Saves `your‑svc‑acct‑key.json`                                      |
+| **d Enable APIs**              | **APIs & Services → Library**               | Turn on **BigQuery API** **and** **Google Drive API**               |
 
 > **Why Drive API?** If any BigQuery table is an external Google Sheet, BigQuery fetches rows via Drive.
 
@@ -113,9 +114,9 @@ creds = service_account.Credentials.from_service_account_file(
 client = bigquery.Client(project=PROJECT_ID, credentials=creds)
 ```
 
-* **Explicit key path**—never falls back to local gcloud creds.
-* **Drive scope**—BigQuery can read Google Sheets.
-* **`.gitignore` blocks `*.json` & `.env*`**—keys stay local.
+- **Explicit key path**—never falls back to local gcloud creds.
+- **Drive scope**—BigQuery can read Google Sheets.
+- **`.gitignore` blocks `*.json` & `.env*`**—keys stay local.
 
 ---
 
@@ -145,8 +146,8 @@ llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
 
 ## 🩹 Common errors & fixes
 
-| Error | Likely cause | Fix |
-| ----- | ------------ | --- |
-| **`403 accessDenied`** (Sheets) | Sheet not shared • Drive API disabled • creds lack Drive scope | Share sheet → enable Drive API → ensure scope list includes Drive |
-| **`BigQuery Job User` missing** | Service account lacks role | Grant *BigQuery Job User* in IAM |
-| **LLM 429 / insufficient\_quota** | Free tier exhausted | Wait 24 h, switch model, or add billing cap |
+| Error                            | Likely cause                                                   | Fix                                                               |
+| -------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **`403 accessDenied`** (Sheets)  | Sheet not shared • Drive API disabled • creds lack Drive scope | Share sheet → enable Drive API → ensure scope list includes Drive |
+| **`BigQuery Job User` missing**  | Service account lacks role                                     | Grant _BigQuery Job User_ in IAM                                  |
+| **LLM 429 / insufficient_quota** | Free tier exhausted                                            | Wait 24 h, switch model, or add billing cap                       |
