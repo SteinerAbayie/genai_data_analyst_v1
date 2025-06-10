@@ -92,16 +92,32 @@ class DashState(TypedDict):
 # ---------------------------------------------------------------------------
 # 5. Graph nodes
 # ---------------------------------------------------------------------------
-# llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
 
-from langchain_google_genai import ChatGoogleGenerativeAI as ChatLLM
+# from langchain_google_genai import ChatGoogleGenerativeAI as ChatLLM
 
-llm = ChatLLM(
-    model="gemini-1.5-pro-latest",
-    google_api_key=os.getenv("GOOGLE_API_KEY"),
-    temperature=0.0,
-)
-client = bigquery.Client(project=os.getenv("BQ_PROJECT_ID"))
+# llm = ChatLLM(
+#     model="gemini-1.5-pro-latest",
+#     google_api_key=os.getenv("GOOGLE_API_KEY"),
+#     temperature=0.0,
+# )
+
+from google.oauth2 import service_account
+from google.cloud import bigquery
+
+KEY_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")  # points to your JSON file
+assert KEY_PATH and Path(KEY_PATH).exists(), "Service‑account key not found!"
+
+SCOPES = [
+    "https://www.googleapis.com/auth/cloud-platform",  # BigQuery + most GCP APIs
+    "https://www.googleapis.com/auth/drive",  # 👈 lets BQ read Drive files
+]
+
+creds = service_account.Credentials.from_service_account_file(KEY_PATH, scopes=SCOPES)
+
+PROJECT_ID = os.getenv("BQ_PROJECT_ID") or creds.project_id
+client = bigquery.Client(project=PROJECT_ID, credentials=creds)
+
 
 DATASET = os.getenv("BQ_DATASET", "analytics")  # change as needed
 
@@ -150,11 +166,28 @@ def generate_streamlit(state: DashState) -> DashState:
     cols_snippet = ", ".join(state["df"].columns[:5]) + (
         " …" if len(state["df"].columns) > 5 else ""
     )
-    system = (
-        "Write a minimal Streamlit app that loads a CSV named 'result.csv' into a DataFrame, shows a KPI summary, "
-        "displays an Ag‑Grid interactive table, and renders appropriate charts (auto‑detect numeric vs categorical). "
-        "Use corporate blue theme and add a sidebar filter for any categorical columns. Output **code only**."
-    )
+    system = """Write a **production‑ready Streamlit app** (return *code only*) that:
+1. **Loads** `result.csv` into a pandas DataFrame named `df`.
+2. **Derives and displays** a row of KPI cards at the top (e.g., total rows, date range, revenue sum/mean if numeric).
+3. Uses **st.sidebar** to auto‑generate filters:
+   • For each *categorical* column → multiselect.  
+   • For each *numeric* column → min/max slider.  
+   Apply filters to `df` live.
+4. Shows an **Ag‑Grid** (interactive) table of the filtered data.
+5. **Auto‑detects column types** and renders:
+   • A responsive bar/line chart for numeric time‑series (if a date column exists).  
+   • Pie or bar charts for categorical distributions (top 10).  
+   • Histogram box for numeric distributions.
+6. Adds tabs or expanders so the user can switch between visualizations.
+7. Uses a **corporate‑blue theme** with:
+   • Clean sans‑serif font.  
+   • Rounded corners, subtle shadows.  
+   • Hover tooltips for charts.  
+   • Light mode by default; allow dark‑mode toggle.
+8. Wraps the code in `if __name__ == "__main__":` so it runs as a script.
+9. Includes graceful handling of empty filter results (show a warning instead of crashing).
+Return only the Streamlit Python code block—no markdown, explanations, or extra text.
+"""
     user = f"Sample columns: {cols_snippet}"
     state["streamlit_code"] = llm.invoke(
         [
