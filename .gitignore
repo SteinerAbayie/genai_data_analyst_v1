@@ -31,3 +31,7 @@ venv/
 *.csv
 *.parquet
 *.db*
+
+
+# ---- Block **all** JSON files (credentials, configs, etc.) ---
+*.json
