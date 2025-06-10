@@ -1,13 +1,12 @@
-# ---- General -------------------------------------------------
-# Never commit secrets or environment‑specific overrides
+# ---- Secrets & environment overrides ----
 .env
-.env.*                     # .env.dev, .env.local, etc.
+.env.*
 *.secret
 *.key
 *.pem
-*.json                     # common credential dumps (comment if you need *.json)
+*.json          # service‑account keys, config dumps
 
-# ---- Python --------------------------------------------------
+# ---- Python build / virtual‑envs --------
 __pycache__/
 *.py[cod]
 *.pyo
@@ -22,16 +21,18 @@ poetry.lock
 env/
 venv/
 .venv/
-# VS Code dev‑container venvs
 */.venv/
 
-# ---- Notebooks & data ---------------------------------------
+# ---- Data & notebooks -------------------
 .ipynb_checkpoints/
 *.ipynb
 *.csv
 *.parquet
 *.db*
 
-
-# ---- Block **all** JSON files (credentials, configs, etc.) ---
-*.json
+# ---- IDE / OS clutter -------------------
+.vscode/
+.idea/
+.DS_Store
+node_modules/
+npm-debug.log*
