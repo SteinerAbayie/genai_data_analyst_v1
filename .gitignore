@@ -1,0 +1,33 @@
+# ---- General -------------------------------------------------
+# Never commit secrets or environment‑specific overrides
+.env
+.env.*                     # .env.dev, .env.local, etc.
+*.secret
+*.key
+*.pem
+*.json                     # common credential dumps (comment if you need *.json)
+
+# ---- Python --------------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+build/
+dist/
+.eggs/
+pip-wheel-metadata/
+poetry.lock
+env/
+venv/
+.venv/
+# VS Code dev‑container venvs
+*/.venv/
+
+# ---- Notebooks & data ---------------------------------------
+.ipynb_checkpoints/
+*.ipynb
+*.csv
+*.parquet
+*.db*
