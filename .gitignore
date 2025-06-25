@@ -4,7 +4,9 @@
 *.secret
 *.key
 *.pem
-*.json          # service‑account keys, config dumps
+*.json 
+*/Users/steinerabayie/Desktop/genai/cosmic-kayak-462516-q8-b5d1fed3c8df_copy.json
+         # service‑account keys, config dumps
 
 # ---- Python build / virtual‑envs --------
 __pycache__/
